@@ -1,28 +1,26 @@
-import { createBdd, test as baseTest } from 'playwright-bdd';
-import { GreenKartPage } from '../pages/green-kart.page';
-
-type Fixtures = {
-  greenKart: GreenKartPage;
-};
-
-export const test = baseTest.extend<Fixtures>({
-  greenKart: async ({ page }, use) => {
-    await use(new GreenKartPage(page));
-  },
-});
+import { createBdd } from 'playwright-bdd';
+import { test } from './fixtures';
 
 const { Given, When, Then } = createBdd(test);
 
-Given('I open the GreenKart catalog', async ({ greenKart }) => {
-  await greenKart.open();
+Given('I record the number of catalog products', async ({ greenKart }) => {
+  await greenKart.rememberCatalogProductCount();
 });
 
 When('I search for {string}', async ({ greenKart }, query: string) => {
   await greenKart.searchFor(query);
 });
 
-Then('the catalog and navigation controls should be rendered', async ({ greenKart }) => {
-  await greenKart.verifyInitialCatalogAndNavigation();
+When('I clear the product search', async ({ greenKart }) => {
+  await greenKart.clearProductSearch();
+});
+
+Then('no products should be shown', async ({ greenKart }) => {
+  await greenKart.verifyNoProductsAreShown();
+});
+
+Then('the full catalog should be restored', async ({ greenKart }) => {
+  await greenKart.verifyCatalogIsRestored();
 });
 
 Then(

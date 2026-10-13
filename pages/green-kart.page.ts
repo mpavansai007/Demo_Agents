@@ -3,6 +3,9 @@ import { expect, type Locator, type Page } from '@playwright/test';
 export class GreenKartPage {
   private readonly homeUrl = 'https://rahulshettyacademy.com/seleniumPractise/#/';
   private rememberedProductPrice = '';
+  private initialProductCount = 0;
+  private firstProductInitialQuantity = 0;
+  private neighboringProductInitialQuantity = 0;
 
   constructor(private readonly page: Page) {}
 
@@ -44,11 +47,72 @@ export class GreenKartPage {
   }
 
   async searchFor(query: string): Promise<void> {
-    const search = this.header.getByRole('searchbox', {
-      name: 'Search for Vegetables and Fruits',
-    });
+    const search = this.searchField;
     await search.fill(query);
     await search.press('Enter');
+  }
+
+  private get searchField(): Locator {
+    return this.header.getByRole('searchbox', {
+      name: 'Search for Vegetables and Fruits',
+    });
+  }
+
+  async rememberCatalogProductCount(): Promise<void> {
+    await expect(this.products.first()).toBeVisible();
+    this.initialProductCount = await this.products.count();
+    expect(this.initialProductCount).toBeGreaterThan(0);
+  }
+
+  async verifyNoProductsAreShown(): Promise<void> {
+    await expect(this.products).toHaveCount(0);
+  }
+
+  async clearProductSearch(): Promise<void> {
+    await this.searchField.fill('');
+    await this.searchField.press('Enter');
+  }
+
+  async verifyCatalogIsRestored(): Promise<void> {
+    await expect(this.products).toHaveCount(this.initialProductCount);
+    await expect(this.products.first()).toBeVisible();
+  }
+
+  async rememberFirstProductQuantities(): Promise<void> {
+    const firstProduct = this.products.nth(0);
+    const neighboringProduct = this.products.nth(1);
+    await expect(neighboringProduct).toBeVisible();
+    this.firstProductInitialQuantity = Number(
+      await firstProduct.locator('input.quantity').inputValue(),
+    );
+    this.neighboringProductInitialQuantity = Number(
+      await neighboringProduct.locator('input.quantity').inputValue(),
+    );
+    expect(this.firstProductInitialQuantity).toBe(1);
+    expect(this.neighboringProductInitialQuantity).toBeGreaterThan(0);
+  }
+
+  async decrementFirstProductQuantity(): Promise<void> {
+    await this.products.nth(0).locator('a.decrement').click();
+  }
+
+  async verifyFirstProductQuantityAtMinimum(): Promise<void> {
+    await expect(this.products.nth(0).locator('input.quantity')).toHaveValue(
+      String(this.firstProductInitialQuantity),
+    );
+  }
+
+  async incrementThenDecrementFirstProductQuantity(): Promise<void> {
+    const quantity = this.products.nth(0).locator('input.quantity');
+    await this.products.nth(0).locator('a.increment').click();
+    await expect(quantity).toHaveValue(String(this.firstProductInitialQuantity + 1));
+    await this.products.nth(0).locator('a.decrement').click();
+  }
+
+  async verifyNeighboringProductQuantityUnchanged(): Promise<void> {
+    await expect(this.products.nth(1).locator('input.quantity')).toHaveValue(
+      String(this.neighboringProductInitialQuantity),
+    );
   }
 
   async verifyOnlyProductIsShown(productName: string): Promise<void> {

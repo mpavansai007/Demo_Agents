@@ -1,12 +1,7 @@
-Feature: GreenKart catalog
+Feature: GreenKart product search
   As a shopper
-  I want to browse the GreenKart catalog and search for produce
-  So that I can find products to buy
-
-  @GK-001
-  Scenario: Initial catalog and navigation controls render
-    Given I open the GreenKart catalog
-    Then the catalog and navigation controls should be rendered
+  I want to search for products by name
+  So that I can find produce in the catalog
 
   @GK-002
   Scenario: Search by exact, partial, and case-varied product name
