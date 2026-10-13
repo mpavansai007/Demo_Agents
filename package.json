@@ -1,0 +1,20 @@
+{
+  "name": "demo_agents",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "bddgen": "bddgen",
+    "test:bdd": "bddgen && playwright test tests/.features-gen --project=chromium",
+    "test:bdd:headed": "bddgen && playwright test tests/.features-gen --project=chromium --headed",
+    "test:bdd:report": "playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.6.5",
+    "playwright-bdd": "^9.2.1"
+  }
+}
